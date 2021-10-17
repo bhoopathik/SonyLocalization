@@ -1,4 +1,4 @@
-package com.bhoopathi.sonylocalization
+package com.bhoopathi.sony
 
 import org.junit.Test
 
