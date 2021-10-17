@@ -1,19 +1,20 @@
 package com.bhoopathi.sony.ui
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.bhoopathi.sony.R
-import com.bhoopathi.sony.model.LanguageDictionaryMap
 import com.bhoopathi.sony.model.LocalizationItem
-import com.bhoopathi.sony.model.LocalizationResponse
+import com.bhoopathi.sony.model.LocalizationList
 import com.bhoopathi.sony.repository.AppRepository
 import com.bhoopathi.sony.util.*
 import com.bhoopathi.sony.viewmodel.LocalizationViewModel
@@ -25,10 +26,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var langButton : Button
 
     val langList = arrayListOf<String>()
-    val localizationList : LocalizationResponse = LocalizationResponse()
-    val languageDictionaryMap : LanguageDictionaryMap = LanguageDictionaryMap()
+    val localizationList : LocalizationList = LocalizationList()
 
-    private  lateinit var textView : TextView
+    val context : Context = this
+
+    private  lateinit var helloWorldTextView : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +38,17 @@ class MainActivity : AppCompatActivity() {
 
         init()
 
-        val context = this
-
         langButton = findViewById(R.id.lang_button)
-        textView = findViewById(R.id.textView);
+        helloWorldTextView = findViewById(R.id.hello_world);
+
+        //registering language button click listener
         langButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
+                if(langList.isEmpty()){
+                    Toast.makeText(context,"Fetching the languages!!! TRY AGAIN", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
                 val builder = MaterialAlertDialogBuilder(context)
 
                 builder.setTitle("Choose Language")
@@ -79,12 +86,18 @@ class MainActivity : AppCompatActivity() {
         registerDictionaryMap()
     }
 
+    /*
+    * This function initializes the viewModel for this activity
+    * */
     private fun setupViewModel() {
         val repository = AppRepository()
         val factory = ViewModelProviderFactory(application, repository)
         viewModel = ViewModelProvider(this, factory).get(LocalizationViewModel::class.java)
     }
 
+    /*
+    * This Function observes the result of while fetching languages
+    * */
     private fun registerLanguage() {
         viewModel.localizationData.observe(this, Observer { response ->
             when (response) {
@@ -92,7 +105,6 @@ class MainActivity : AppCompatActivity() {
                     response.data?.let { picsResponse ->
 
                         val localizationResponse : ArrayList<LocalizationItem> = picsResponse;
-                        Log.d("Harini", "localizationResponse:"+localizationResponse)
                         for(localizationItem in localizationResponse){
                             langList.add(localizationItem.language)
                             localizationList.add(localizationItem)
@@ -111,25 +123,31 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    /*
+    * This Function observes the result of different languages
+    * */
     private fun registerDictionaryMap() {
         viewModel.languageDictionary.observe(this, Observer { response ->
             when (response) {
                 is Resource.Success -> {
-                    response.data?.let { picsResponse ->
-
-                        val languageDictionary : Map<String, String> = picsResponse;
-
-                        Log.d("Harini", "Response:"+languageDictionary)
-                        textView.setText(languageDictionary.get("hello_world"))
+                    response.data?.let { dictionaryResponse ->
+                        val languageDictionary : Map<String, String> = dictionaryResponse;
+                        helloWorldTextView.setText(languageDictionary.get("hello_world"))
                     }
                 }
 
                 is Resource.Error -> {
                     response.message?.let { message ->
+                        this@MainActivity.runOnUiThread(java.lang.Runnable {
+                            Toast.makeText(this,"Localization not available, setting default", Toast.LENGTH_SHORT).show()
+                            helloWorldTextView.setText(getString(R.string.hello_world))
+                        })
+
                     }
                 }
 
                 is Resource.Loading -> {
+                    helloWorldTextView.setText("Translating.. Please wait")
                 }
             }
         })

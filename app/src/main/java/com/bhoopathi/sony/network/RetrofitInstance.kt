@@ -6,6 +6,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+/*
+* This is a single instance object provider, it gives instance of Retrofit client with API instance
+* */
 class RetrofitInstance {
 
     companion object {

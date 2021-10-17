@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.bhoopathi.sony.R
 import com.bhoopathi.sony.app.MyApplication
 import com.bhoopathi.sony.model.LanguageDictionary
-import com.bhoopathi.sony.model.LocalizationResponse
+import com.bhoopathi.sony.model.LocalizationList
 import com.bhoopathi.sony.repository.AppRepository
 import com.bhoopathi.sony.util.Resource
 import com.bhoopathi.sony.util.Utils.hasInternetConnection
@@ -20,7 +20,7 @@ class LocalizationViewModel(
     private val appRepository: AppRepository
 ) : AndroidViewModel(app) {
 
-    val localizationData: MutableLiveData<Resource<LocalizationResponse>> = MutableLiveData()
+    val localizationData: MutableLiveData<Resource<LocalizationList>> = MutableLiveData()
     val languageDictionary: MutableLiveData<Resource<LanguageDictionary>> = MutableLiveData()
 
     init {
@@ -94,7 +94,7 @@ class LocalizationViewModel(
         }
     }
 
-    private fun handleLocalizationResponse(response: Response<LocalizationResponse>): Resource<LocalizationResponse> {
+    private fun handleLocalizationResponse(response: Response<LocalizationList>): Resource<LocalizationList> {
         if (response.isSuccessful) {
             response.body()?.let { resultResponse ->
 

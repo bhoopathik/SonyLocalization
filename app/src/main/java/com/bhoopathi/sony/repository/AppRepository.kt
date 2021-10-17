@@ -4,6 +4,7 @@ import com.bhoopathi.sony.model.LanguageDictionary
 import com.bhoopathi.sony.network.RetrofitInstance
 import retrofit2.Response
 
+// This is Common Repository for All APIs
 class AppRepository {
 
     suspend fun getLocalization() = RetrofitInstance.localizationApi.getLocalization()
